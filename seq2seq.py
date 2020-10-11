@@ -26,6 +26,5 @@ class Seq2seq(nn.Module):
                 dec_output: outputs from decoder
         """
         enc_output, enc_hidden = self.encoder(inp)
-        dec_output = self.decoder(enc_output, enc_hidden)
 
-        return dec_output
+        return self.decoder(enc_output, enc_hidden)

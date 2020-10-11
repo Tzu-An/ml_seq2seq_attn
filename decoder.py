@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .rnn_base import RNN
-from .attention import DotProdAttention
+from .attention import set_attn
 
 
 class Decoder(RNN):
@@ -21,7 +21,8 @@ class Decoder(RNN):
             linear: a linear layer maps hidden vector to output
     """
     def __init__(self, voc_size, hid_size, max_len, sos, eos,
-                 rnn_type="lstm", layers=1, bidirectional=False):
+                 rnn_type="lstm", attn_type="dot-prod",
+                 layers=1, bidirectional=False):
         """Initialize decoder instance
             Args:
                 voc_size (int): vocabulary size
@@ -29,6 +30,8 @@ class Decoder(RNN):
                 max_len (int): maximum length of sequences
                 sos (int): index of start of sequences
                 eos (int): index of end of sequences
+                rnn_type (str): type of RNN
+                attn_type (str): attention method
                 layers (int): layers of rnn cells
                 bidirectional (bool): bidirectional encoder or not
         """
@@ -43,7 +46,7 @@ class Decoder(RNN):
         self.eos = eos
         self.bidirectional = bidirectional
 
-        self.attention = DotProdAttention()
+        self.attention = set_attn(attn_type, dim=self.hid_size)
         self.embed = nn.Embedding(voc_size, hid_size)
         self.linear = nn.Linear(self.hid_size, voc_size)
 
@@ -85,8 +88,6 @@ class Decoder(RNN):
             Returns:
                 dec_hidden: hidden states of decoder
         """
-        if enc_hidden is None:
-            return None
         if self.bidirectional:
             return tuple([self._cat(state) for state in enc_hidden])
         return enc_hidden
@@ -147,7 +148,7 @@ class Decoder(RNN):
                 enc_output (torch.Tensor, size=(batch, seq, hidden)):
                     outputs of encoder
                 enc_hidden (tuple of torch.Tensor):
-                    hidden states of encoder, None is accepted.
+                    hidden states of encoder.
             Returns ret_dict (dict):
                 - Symbols (list of torch.LongTensor): index of tokens
                 - LogProbs (list of torch.Tensor): log softmax values

@@ -60,3 +60,32 @@ class CatDotProdAttention(nn.Module):
         output = F.tanh(self.linear(output))
 
         return output, attn
+
+
+def set_attn(attn_type, **kwargs):
+    """Return defined attention mechanism
+        Args:
+            attn_type (str): attention method
+        Returns:
+            attention object
+        Raise ValueError if attn_type is invalid or
+        required kwargs don't exist
+    """
+    valids = {
+        "dot-prod": 0,
+        "cat-dot-prod": 1
+    }
+
+    attn_type = valids.get(attn_type)
+
+    if attn_type is None:
+        raise ValueError("Attention type should in {}".format(valids.keys()))
+
+    if attn_type == 0:
+        return DotProdAttention()
+
+    elif attn_type == 1:
+        dim = kwargs.get("dim")
+        if dim is None:
+            raise ValueError("Need kwarg 'dim'")
+        return CatDotProdAttention(dim)
