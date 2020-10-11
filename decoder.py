@@ -1,10 +1,10 @@
-"""Decodr Object"""
+"""Decoder Object"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from .rnn_base import RNN
-from .attention import *
+from .attention import DotProdAttention
 
 
 class Decoder(RNN):
@@ -153,7 +153,11 @@ class Decoder(RNN):
                 - LogProbs (list of torch.Tensor): log softmax values
         """
 
-        ret_dict = {"Symbols": list(), "LogProbs": list()}
+        ret_dict = {
+            "Symbols": list(),
+            "LogProbs": list(),
+            "Attentions": list()
+        }
 
         batch_size = enc_output.size(0)
         step_input = self._init_input(batch_size)
@@ -166,9 +170,7 @@ class Decoder(RNN):
             symbols = step_output.topk(1, dim=2)[1].squeeze(2)
             ret_dict["LogProbs"].append(step_output)
             ret_dict["Symbols"].append(symbols)
+            ret_dict["Attentions"].append(step_attn)
             step_input = symbols
 
         return ret_dict
-
-
-

@@ -41,4 +41,5 @@ class Encoder(RNN):
         """
         embed = self.embedding(inp)
         output, hidden = self.rnn(embed)
+
         return output, hidden
