@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .rnn_base import RNN
-from .attention import set_attn
+from .attentions import set_attn
 
 
 class Decoder(RNN):
