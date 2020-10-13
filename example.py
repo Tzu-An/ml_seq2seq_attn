@@ -28,9 +28,9 @@ optimizer = torch.optim.RMSprop(my_model.parameters(), lr=0.001)
 
 # Train process
 for epoch in range(5):
-    optimizer.zero_grad()
 
     for batch, batch_data in enumerate(data):
+        optimizer.zero_grad()
         output = my_model.forward(batch_data)
         probs = torch.cat(output["LogProbs"], dim=1)
 
